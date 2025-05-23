@@ -14,32 +14,73 @@
 
 -- 예시
 -- 열 지정 INSERT 
-insert into dept (dname, deptno, loc) values ('개발부2', 70, '서울2' );
-select *  from dept;
+insert into dept (
+   dname,
+   deptno,
+   loc
+) values ( '개발부2',
+           70,
+           '서울2' );
+select *
+  from dept;
 -- 열 생략 INSERT
-insert into dept values ( 80,'개발부3','서울3' );
+insert into dept values ( 80,
+                          '개발부3',
+                          '서울3' );
 commit;
 -- SYSDATE 삽입
-INSERT INTO EMP (empno, ename, hiredate) VALUES ( 1000, '홍길동', SYSDATE );
-SELECT * FROM EMP;
+-- 테이블에 모든 데이터를 추가 할 필요는 없다
+-- EAD
+insert into emp (
+   empno,
+   ename,
+   hiredate
+) values ( 1000,
+           '홍길동',
+           sysdate );
+select *
+  from emp;
 
 -- 퀴즈1, 
 -- DEPT 테이블에 (99, ‘AI팀’, ‘JEJU’) 데이터를 추가하시오. 
- INSERT INTO dept (deptno, dname, loc) VALUES (99, 'AI팀', 'JEJU');
- SELECT * FROM dept;
+insert into dept (
+   deptno,
+   dname,
+   loc
+) values ( 99,
+           'AI팀',
+           'JEJU' );
+select *
+  from dept;
 -- 퀴즈2, 
 -- EMP 테이블에 사번 1234, 이름 'LEE', 입사일을 SYSDATE로 추가하시오.
-  INSERT  INTO emp (empno, ename, hiredate) VALUES (1234, 'LEE', SYSDATE);
-  SELECT * FROM emp;
+insert into emp (
+   empno,
+   ename,
+   hiredate
+) values ( 1234,
+           'LEE',
+           sysdate );
+select *
+  from emp;
 -- 퀴즈3, 
 -- DEPT에 NULL을 포함한 값 삽입 
 -- 테이블에 PK 값 의무적으로 입력하기, 
 -- PK : NOT NULL, UNIQUE 제약조건이 있는 열
-INSERT INTO dept (deptno, dname, loc) VALUES (NULL, 'AI팀', NULL);
-SELECT * FROM dept;
+insert into dept (
+   deptno,
+   dname,
+   loc
+) values ( null,
+           'AI팀',
+           null );
+select *
+  from dept;
 
 -- 데이터 사전에서 테이블의 제약조건 확인해보기 DEPT 테이블
-SELECT * FROM user_constraints WHERE table_name = 'DEPT';
+select *
+  from user_constraints
+ where table_name = 'DEPT';
 -- 제약조건 확인하기
 
 -- 테이블 복사하는 방법 
@@ -48,14 +89,26 @@ SELECT * FROM user_constraints WHERE table_name = 'DEPT';
 -- 새로운 테이블을 생성하는 기본 문법 
 -- CREATE TABLE 테이블명 AS SELECT * FROM 테이블명 WHERE 조건;
 -- EMP_TEMP_30 테이블 생성 , 단순 빈테이블 생성
-CREATE TABLE EMP_TEMP_30 AS SELECT * FROM EMP WHERE 1=0;
+create table emp_temp_30
+   as
+      select *
+        from emp
+       where 1 = 0;
 -- 실제 데이터 삽입
-CREATE TABLE EMP_TEMP_40 AS SELECT * FROM EMP WHERE 1=1;
+create table emp_temp_40
+   as
+      select *
+        from emp
+       where 1 = 1;
 
-INSERT INTO EMP_TEMP_30
-SELECT * FROM EMP WHERE deptno = 30;
+insert into emp_temp_30
+   select *
+     from emp
+    where deptno = 30;
 
 -- EMP_TEMP_30 테이블 확인
-SELECT * FROM EMP_TEMP_30;
+select *
+  from emp_temp_30;
 -- EMP_TEMP_40 테이블 확인
-SELECT * FROM EMP_TEMP_40;
+select *
+  from emp_temp_40;
