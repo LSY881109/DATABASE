@@ -1,3 +1,18 @@
+//몽고디비 서버 시작 명령어
+//mongod --dbpath C:\Users\it\Documents\mongodb
+
+//명령어창에서 붙여넣기
+
+//종료는 컨트롤+c
+//또는 창닫기
+//vscode에서, 연결 서버 주소 기본
+//mongodb://localhost:27017
+//[파일명].mongodb.js
+
+//NOSQL-TEST.mongodb.js
+//test.mongodb.js
+
+
 use('test')//기본 데이터 베이스, test 사용함. 생략시 기본 test 데이터베이스 사용
 
 
