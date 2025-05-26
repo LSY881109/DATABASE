@@ -62,7 +62,7 @@ db.users.deleteOne({ name: '홍길동' });
 // 컬렉션의 용량이 초과하게 되면 오래된 데이터 부터 차례대로 삭제하는 기능.
 // db.createCollection('capped', { capped: true, size: 1000000, maxDocuments: 1000 });
 //  용량이 5KB인 컬렉션을 생성하고, 부가 기능으로 용량 초과시 오래된 데이터 삭제
-db.createCollection('logs', { capped: true, size: 5000, }); // 5KB
+db.createCollection('logs4', { capped: true, size: 5000, }); // 5KB
 // 샘플 데이터 추가, 반복문을 이용해서, 샘플로 1000개 추가
 for (let i = 2000; i < 3000; i++) {
     db.logs.insertOne({
@@ -74,7 +74,7 @@ for (let i = 2000; i < 3000; i++) {
 
 db.logs.find().pretty(); // pretty() : 보기 좋게 출력
 
-db.createCollection('logs2', { capped: true, size: 5000, }); // 5KB
+db.createCollection('logs4', { capped: true, size: 5000, }); // 5KB
 for (let i = 1000; i < 2000; i++) {
     db.logs2.insertOne({
         message: `로그 메시지 ${i}`,

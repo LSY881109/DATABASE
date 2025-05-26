@@ -1,5 +1,6 @@
 -- 객체를 생성, 변경, 삭제하는 데이터 정의어
-
+-- DDL(Data Definition Language)
+-- 따로 트랜잭션을 사용하지 않음. -> 알아서 commit됨
 -- CREATE : 객체를 생성하는 명령어
 -- ALTER : 객체를 변경하는 명령어
 -- DROP : 객체를 삭제하는 명령어

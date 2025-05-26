@@ -1,191 +1,90 @@
---다양한 고급 그룹화 함수 기능 소개 
+-- 비등가 조인,  
+-- 외부 조인 (오라클 전용),-> 표준 문법도  같이 소개
 
--- (ROLLUP) : 계층적 요약
--- 부서별, 직책별 급여 합계 
--- 기본 문법 
--- SELECT  부서, 직책 , SUM(급여)
--- FROM EMP 
--- GROUP BY ROLLUP(부서, 직책)
--- 상위 항목(부서) -> 하위항목 (직책) 순서로 요약
--- 마지막 행은 전체 총합
-SELECT DEPTNO, JOB, SUM(SAL)
-FROM EMP 
-GROUP BY ROLLUP(DEPTNO, JOB);
+-- 비등가 조인 
+select e.ename,
+       e.sal,
+       g.grade,
+       g.losal,
+       g.hisal
+  from emp e,
+       salgrade g
+ where e.sal between g.losal and g.hisal;
 
--- CUBE : 모든 조합 분석 
--- 기본 문법 
--- SELECT 부서, 직책, SUM(급여)
--- FROM EMP 
--- GROUP BY CUBE(부서,직책)
--- ROLLUP 보다 더 많은 조합 생성 
--- (부서,직책), (부서), (직책) 모든 집계 조합 가능. 
+-- 외부 조인 (오라클 전용)
+-- 오른쪽 외부 조인, 
+-- 오른쪽 기준으로, 왼쪽에 값이 없어도 표기하겠다. 
+-- 값이 NULL 이어도 표기 하겠다. 
+select e.ename,
+       d.dname
+  from emp e,
+       dept d
+ where e.deptno = d.deptno (+);
 
-SELECT DEPTNO, JOB, SUM(SAL) AS "총 급여"
-FROM EMP 
-GROUP BY CUBE(DEPTNO,JOB);
+--원본, 자체 조인 = 등가 조인, MGR = EMPNO
+-- NULL  인 경우  , 데이터가 누락이됨.
+select *
+  from emp;
+select e.empno as "EMP 사원번호",
+       e.ename as "EMP 사원명",
+       e.mgr as "EMP직속 상관번호",
+       m.empno as "EMP2 상관의 번호",
+       m.ename as "EMP2직속 상관명"
+  from emp e,
+       emp m
+ where e.mgr = m.empno;
 
--- GROUPING 
--- 집계로 인한 NULL 여부 식별에 사용함. 
--- 기본 문법 
--- SELECT 컬럼1, 컬럼2, 집계합수(컬럼3) ,
--- GROUPING(컬럼1) AS 그룹1,
--- GROUPING(컬럼2) AS 그룹2
--- FROM 테이블 명 
--- GROUP BY ROLLUP(컬럼1, 컬럼2);
+-- 외부 조인 버전으로 변경해서 누락 없이 
+-- 왼쪽 컬럼을 기준으로 표기하기. 
+-- 왼쪽 외부 조인
 
--- DEPTNO = 1 이면 전체 집계로 생긴 NULL
--- JOB = 1 이면 부서 합계로 생긴 NULL
-SELECT DEPTNO, JOB, SUM(SAL) AS "총 급여",
-GROUPING(DEPTNO) AS "GROUP_DEPTNO",
-GROUPING(JOB) AS "GROUP_JOB"
-FROM EMP 
-GROUP BY ROLLUP(DEPTNO, JOB);
-
--- PIVOT 
--- 행 -> 열로 전환 하기 
--- 기본 문법 
--- SELECT * 
--- FROM (
--- SELECT 기준 컬럼, 피벗컬럼, 값 컬럼 FROM 테이블명
---)
--- PIVOT (
--- 집계함수(값 컬럼)
--- FOR 피벗컬럼 IN (값1 AS 별칭1, 값2 AS 별칭2,...)
---);
-
--- 직책별 급여 합계를 부서별로 , 가로 형태로 전환
--- 세로 나온 데이터 들을 , 가로 배치 
-SELECT DEPTNO, JOB, SAL FROM EMP;
-SELECT * 
-FROM ( SELECT DEPTNO, JOB, SAL FROM EMP)
-PIVOT(
-SUM(SAL)
-FOR JOB IN ('CLERK' AS "사무직",
-'MANAGER' AS "관리자", 'ANALYST' AS "분석가")
-);
-
--- UNPIVOT 
--- 열 데이터를 다시 행으로 전환  
--- 가로 형태의 데이터 -> 세로 형태로 변경
--- 기본 문법
--- SELECT * 
--- FROM ( SELECT  기준컬럼, 열1, 열2,... FROM 테이블명)
--- UNPIVOT (
--- 값 컬럼 FOR 피벗 커럼 IN (열1, 열2,...)
---);
-
--- 위에서 PIVOT 된 결과를 다시 행으로 변환 
--- 컬럼명 한글로 하면 가능하다고, 검토
-SELECT DEPTNO, JOB, SUM(SAL) AS "총급여" -- 메인쿼리
-FROM ( 
--- 서브 쿼리1 시작
-SELECT * 
-    FROM ( 
-    -- 서브 쿼리2
-    SELECT DEPTNO, JOB, SAL
-    FROM EMP
-    )
-    PIVOT(
-    SUM(SAL) FOR JOB IN 
-    ('CLERK' AS "사무직", 'MANAGER' AS "관리자",
-    'ANALYST' AS "분석가")
-    ) 
-    -- 서브 쿼리1 출력 모양 
-    -- DEPTNO 사무직 관리자 분석가 
-    -- 30     950    2850   NULL
-)-- 서브 쿼리1 닫는 부분
-
--- 위에서 만든, 가로로 변환한 
--- 예를 다시, 세로 방향으로 변환. 
-UNPIVOT (
--- SAL : 실제 값이 할당이 되는 부분 
-    SAL FOR JOB IN (
-    "사무직" AS 'CLERK', 
-    "관리자" AS 'MANAGER',
-    "분석가" AS 'ANALYST')
-)
-GROUP BY DEPTNO, JOB
-ORDER BY DEPTNO, JOB;
+select e.empno as "EMP 사원번호",
+       e.ename as "EMP 사원명",
+       e.mgr as "EMP직속 상관번호",
+       m.ename as "EMP2직속 상관명"
+  from emp e,
+       emp m
+ where e.mgr = m.empno (+);
 
 
--- UNPIVOT 간단한 예시 
--- 열 기준의 급여 데이터를 연도 기준 행으로 전환하기. 
--- 실제로 출력이 되는 컬럼은 
--- EMPNO, ENAME, 항목, 금액
 
-SELECT EMPNO, ENAME, 항목, 금액 
-FROM (
-    SELECT EMPNO, ENAME, SAL, COMM FROM EMP
-)
--- UNPIVOT : 열 -> 행으로 변환하는 절
-UNPIVOT (
-    -- 실제 값이 들어갈 컬러명
-    금액 
-    -- 어떤 항목인 구분하는 컬럼명, 
-    -- (예시:급여, 커미션)
-    FOR 항목 
-    IN (
-    -- SAL, COMM UNPIVOT의 대상이 되는 열
-    -- SAL 컬럼을 급여이라는 별칭 변환
-        SAL AS '급여',
-    -- COMM 컬럼을 수당이라는 별칭 변환
-        COMM AS '수당'
-    )
-);
+-- 외부 조인 버전으로 변경해서 누락 없이 
+-- 오른쪽 컬럼을 기준으로 표기하기. 
+-- 오른쪽 외부 조인
+
+select e.empno as "EMP 사원번호",
+       e.ename as "EMP 사원명",
+       e.mgr as "EMP직속 상관번호",
+       m.ename as "EMP2직속 상관명"
+  from emp e,
+       emp m
+ where e.mgr (+) = m.empno;
 
 
--- UNPIVOT 
--- 열 데이터를 다시 행으로 전환  
--- 기본 문법
--- SELECT * 
--- FROM ( SELECT  기준컬럼, 열1, 열2,... FROM 테이블명)
--- UNPIVOT (
--- 값 컬럼 FOR 피벗 커럼 IN (열1, 열2,...)
---);
+--퀴즈 1,
+-- EMP와 DEPT 테이블에서 부서가 없는 사원도 포함해 
+-- 사원명과 부서명을 출력하시오 (왼쪽 외부 조인)
+select e.ename,
+       d.dname
+  from emp e,
+       dept d
+ where e.deptno = d.deptno (+);
 
---퀴즈 1
--- EMP 테이블에서 SAL, COMM 을 UNPIVOT 한 후, 
--- 항목별 (급여/커미션) 전체 합계를 구하기. 
--- 별칭 : 항목, 총합계
-SELECT ENAME, SAL, COMM FROM EMP;
--- 기존 테이블 , 가로로 
--- ENAME  SAL   COMM 
--- KING   5000  NULL
+--퀴즈 2
+-- 오른쪽 외부 조인을 사용하여 부서가 있지만, 
+-- 사원이 없는 부서를 포함해서 출력하시오. 
+select e.ename,
+       d.dname
+  from emp e,
+       dept d
+ where e.deptno (+) = d.deptno;
 
--- UNPIVOT 을 적용하면 데이터, 
--- 변환 후, 
--- ENAME   항목(새로 만든 임의의 컬럼)  금액(임의 만듦)
--- KING    SAL(별칭 : 급여)           5000
--- KING    COMM(별칭 : 수당)           NULL
-
--- 풀이 1
-SELECT 항목, SUM(금액) AS "총합계"
-FROM (
--- UNPIVOT이 되는 되상 컬럼
--- 원래 , 가로로 배치된 데이터, 
--- 이 데이터 들을 변환 해서, 세로로 배치할 계획
-    SELECT SAL, COMM FROM EMP
-)
-UNPIVOT (
-    금액 FOR 항목 IN (
-    SAL AS '급여',
-    COMM AS '수당'
-    )
-)
-GROUP BY 항목;
-
--- 풀이2 
-SELECT ENAME ,항목, SUM(금액) AS "총합계"
-FROM (
--- UNPIVOT이 되는 되상 컬럼
--- 원래 , 가로로 배치된 데이터, 
--- 이 데이터 들을 변환 해서, 세로로 배치할 계획
-    SELECT ENAME, SAL, COMM FROM EMP
-)
-UNPIVOT (
-    금액 FOR 항목 IN (
-    SAL AS '급여',
-    COMM AS '수당'
-    )
-)
-GROUP BY ENAME,항목;
+--퀴즈 3
+-- WHERE 절에 추가 조건(`job = 'CLERK'`)을 넣고 부서별 사원 출력  
+select e.ename,
+       e.job,
+       d.dname
+  from emp e,
+       dept d
+ where e.deptno = d.deptno
+   and e.job = 'CLERK';
