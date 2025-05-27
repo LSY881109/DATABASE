@@ -1,7 +1,10 @@
 select *
   from dept;
 select *
-  from emp;
+  from EMP_COPY;
+  --복사본 삭제
+
+ 
 select *
   from salgrade;
 
