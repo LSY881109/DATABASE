@@ -122,3 +122,78 @@ db.users2.updateOne(
     { name: '김지연' },
     { $pull: { favorite: { $in: ['자전거', '떡볶이'] } } }
 );
+
+
+db.logs.drop();
+
+
+
+17. logs 라는 컬렉션 이름으로, Capped Collection, 컬렉션 생성합니다.
+    옵션, 5KB(size : 5000) 이용해서, 오래된 데이터 삭제 되는 부분 확인.
+        제출 1) Capped Collection, 컬렉션 생성 쿼리 화면 2) 샘플 데이터 추가 쿼리 3) 결과 쿼리
+
+// 1) logs라는 이름의 Capped Collection 생성 (5KB)
+db.createCollection('logs', { capped: true, size: 5000 });
+
+// 2) 샘플 데이터 100개 추가
+for (let i = 1; i <= 100; i++) {
+    db.logs.insertOne({
+        message: `로그 메시지 ${i}`,
+        timestamp: new Date()
+    });
+}
+
+// 3) 결과 조회 (최신 100개만 남아있는지 확인)
+db.logs.find().pretty();
+
+
+18. 한 개 문서 삽입, 컬렉션 명: users, 컬럼 : 이름, 생년월일, 좋아하는 음식, 등록날짜,
+    샘플 데이터 3개 추가
+제출 1) 추가하는 쿼리 화면 2) 조회 결과 화면
+
+// 1) users 컬렉션에 샘플 데이터 3개 추가
+db.users.insertOne({
+    name: '홍길동',
+    birth: '1990-01-01',
+    favorite: ['떡볶이', '치킨'],
+    createdAt: new Date()
+});
+db.users.insertOne({
+    name: '김철수',
+    birth: '1985-05-12',
+    favorite: ['피자', '초밥'],
+    createdAt: new Date()
+});
+db.users.insertOne({
+    name: '이영희',
+    birth: '2000-09-30',
+    favorite: ['파스타', '샐러드'],
+    createdAt: new Date()
+});
+
+// 2) users 컬렉션 전체 조회
+db.users.find();
+
+
+19. 컬렉션 명: users, 좋아하는 음식 컬럼 수정해보기, 하나만 수정하기
+제출 1) 수정하는 쿼리 화면 2) 조회 결과 화면
+
+// 1) users 컬렉션에서 '홍길동'의 좋아하는 음식(favorite)만 수정
+db.users.updateOne(
+    { name: '홍길동' },
+    { $set: { favorite: ['떡볶이', '치킨', '라면'] } }
+);
+
+// 2) 조회
+db.users.find();
+
+
+20. 컬렉션 명: users, 에서, 등록한 항목 하나 삭제 해보기.
+    제출 1) 삭제하는 쿼리 화면 2) 조회 결과 화면
+
+// 1) users 컬렉션에서 '이영희' 문서 하나 삭제
+db.users.deleteOne({ name: '이영희' });
+
+// 2) users 컬렉션 전체 조회 (삭제 결과 확인)
+db.users.find();
+
